@@ -7,5 +7,5 @@
 *.pdf binary
 
 # Fichier généré : masqué dans les diffs de revue.
-src/types/database.types.ts linguist-generated=true -diff
+src/types/backend/database.types.ts linguist-generated=true -diff
 package-lock.json linguist-generated=true
