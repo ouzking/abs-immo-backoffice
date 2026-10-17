@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, types, tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      # Variables publiques factices : le build vérifie seulement la compilation.
+      - run: npm run build
+        env:
+          VITE_SUPABASE_URL: https://example.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci
+      - name: Aucune clé secrète dans le dépôt ni dans le bundle
+        run: |
+          ! git grep -nE "sb_secret_|service_role\"?\s*[:=]\s*\"ey" -- ':!docs' ':!README.md' ':!src/config/env.ts' ':!src/types/backend'
+          ! grep -rE "sb_secret_[A-Za-z0-9]" dist
+
+  # Les tests d'intégration (npm run test:integration) exigent la pile Supabase du
+  # dépôt abs-immo-backend ; ils s'exécutent en local (voir docs/LOCAL_SETUP.md).

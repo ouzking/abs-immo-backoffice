@@ -1,0 +1,174 @@
+@import 'tailwindcss';
+
+/* =============================================================================
+   ABS IMMO & SERVICES — design system du back-office
+   Couleurs relevées sur le logo officiel (identiques au site public) :
+   marine #104571, rouge #BF1522. Aucune teinte dorée : les avertissements
+   utilisent un orange franc, distinct de tout doré.
+   ============================================================================= */
+@theme {
+  --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Fraunces Variable', ui-serif, Georgia, 'Times New Roman', serif;
+
+  /* Marine (logo) */
+  --color-navy-50: #f1f5f9;
+  --color-navy-100: #e1eaf2;
+  --color-navy-200: #c3d4e4;
+  --color-navy-300: #94b2cd;
+  --color-navy-400: #5c87ae;
+  --color-navy-500: #2f6593;
+  --color-navy-600: #1b5482;
+  --color-navy-700: #104571;
+  --color-navy-800: #0d3758;
+  --color-navy-900: #0a2a43;
+  --color-navy-950: #061a2b;
+
+  /* Rouge (logo) */
+  --color-brand-red-50: #fdf0f1;
+  --color-brand-red-100: #fbdcdf;
+  --color-brand-red-200: #f6b9bf;
+  --color-brand-red-500: #d4303c;
+  --color-brand-red-600: #bf1522;
+  --color-brand-red-700: #9e111c;
+  --color-brand-red-800: #7f0e17;
+
+  /* Gris (fonds secondaires, séparateurs, textes secondaires) */
+  --color-mist-50: #f7f8fa;
+  --color-mist-100: #eff2f5;
+  --color-mist-200: #e1e6ec;
+  --color-mist-300: #cbd3dc;
+  --color-mist-400: #9aa6b4;
+  --color-mist-500: #5d6878;
+  --color-mist-600: #505c6b;
+  --color-mist-700: #3b4552;
+  --color-ink: #0b1d2e;
+
+  /* Sémantique des statuts */
+  --color-success-50: #ecfdf3;
+  --color-success-100: #d1fadf;
+  --color-success-600: #0f7a47;
+  --color-success-700: #0b6138;
+  --color-warning-50: #fff4ed;
+  --color-warning-100: #ffe4d1;
+  --color-warning-600: #c2410c;
+  --color-warning-700: #9a3412;
+  --color-info-50: #eef6ff;
+  --color-info-100: #d9eaff;
+  --color-info-600: #1f63c6;
+  --color-info-700: #184f9f;
+
+  --radius-card: 1rem;
+  --shadow-soft: 0 1px 2px rgb(11 29 46 / 0.04), 0 6px 18px -10px rgb(11 29 46 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(11 29 46 / 0.05), 0 24px 48px -20px rgb(11 29 46 / 0.3);
+  --shadow-ring: 0 0 0 1px rgb(11 29 46 / 0.06);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-fade-in: fade-in 0.25s ease-out both;
+  --animate-fade-up: fade-up 0.35s var(--ease-out-soft) both;
+  --animate-slide-in-right: slide-in-right 0.3s var(--ease-out-soft) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: none;
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: -400px 0;
+    }
+    to {
+      background-position: 400px 0;
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-mist-50 font-sans text-ink antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-navy-500);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-navy-100);
+    color: var(--color-navy-900);
+  }
+
+  dialog::backdrop {
+    background: rgb(6 26 43 / 0.45);
+    backdrop-filter: blur(2px);
+  }
+
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    opacity: 0.4;
+  }
+}
+
+@layer components {
+  .skeleton {
+    background: linear-gradient(90deg, var(--color-mist-100) 0, var(--color-mist-200) 40%, var(--color-mist-100) 80%);
+    background-size: 800px 100%;
+    animation: var(--animate-shimmer);
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Défilement fin pour les zones internes (sidebar, tableaux). */
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-mist-300) transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
