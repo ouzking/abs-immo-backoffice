@@ -55,8 +55,8 @@ Les photos des biens du seed n'ont pas de fichier réel dans Storage. Pour les r
 (pile **locale** uniquement ; le script refuse toute autre URL) :
 
 ```bash
-npm run demo:photos                                   # dossier par défaut : OneDriveImagesimmobilier
-npm run demo:photos -- "C:cheminersmesphotos"     # autre dossier (mêmes noms de fichiers)
+npm run demo:photos                                # dossier par défaut : %USERPROFILE%\OneDrive\Images\immobilier
+npm run demo:photos -- "C:\chemin\vers\mes\photos"  # autre dossier (mêmes noms de fichiers)
 ```
 
 À relancer après chaque `npm run db:reset` du backend.
