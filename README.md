@@ -38,6 +38,7 @@ Développement complet avec la base locale et les comptes de démonstration : [d
 | `npm run test:integration` | Tests d'intégration contre la pile Supabase **locale** (voir ci-dessous) |
 | `npm run check` | lint + types + tests + build |
 | `npm run types:sync` | Recopie les types du contrat depuis `../abs_immo_backend/src/types` |
+| `npm run demo:photos` | Ajoute de vraies photos aux biens de démonstration (pile **locale** uniquement) |
 
 ## Fonctionnalités
 

@@ -10,14 +10,11 @@ import {
   Handshake,
   Inbox,
   MailWarning,
-  Plus,
   UsersRound,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
-import { ButtonLink } from '@/components/ui/Button'
 import { Card, CardBody, CardHeader } from '@/components/ui/Card'
 import { FilterSelect, StatTile } from '@/components/ui/Misc'
-import { PageHeader } from '@/components/ui/PageHeader'
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui/States'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { listRecentInquiries } from '@/features/leads/api'
@@ -33,6 +30,7 @@ import type { LeadStatus } from '@/types'
 import { PERIOD_PRESETS, fetchAgentPerformance, fetchDashboardStats, fetchTimeseries, periodFromPreset, type PeriodKey } from './api'
 import { SERIES } from './chartTheme'
 import { ActivityChart } from './components/ActivityChart'
+import { DashboardHero } from './components/DashboardHero'
 import { BarList, SplitBar, StackedTypeBars } from './components/Bars'
 
 const LEAD_PIPELINE: LeadStatus[] = ['new', 'contacted', 'qualified', 'visit_scheduled', 'negotiation', 'won', 'lost']
@@ -81,27 +79,18 @@ export function DashboardPage() {
 
   return (
     <>
-      <PageHeader
-        title={
-          <span>
-            {greeting()}
-            {firstName ? `, ${firstName}` : ''}
-          </span>
-        }
+      <DashboardHero
+        greeting={firstName ? `${greeting()}, ${firstName}` : greeting()}
         description={
           canAll
             ? "Vue d'ensemble de l'activité de l'agence, calculée en temps réel à partir des données enregistrées."
             : 'Vos biens, vos demandes et vos prospects, calculés en temps réel.'
         }
-        actions={
-          can('properties.create') && (
-            <ButtonLink to="/biens/nouveau" variant="primary" icon={<Plus className="h-4 w-4" />}>
-              Nouveau bien
-            </ButtonLink>
-          )
-        }
+        pendingInquiries={s?.inquiries.pending}
+        pendingViewings={s?.viewings.pending}
+        canCreate={can('properties.create')}
+        canLeads={canLeads}
       />
-
       {/* Filtres */}
       <div className="mb-6 flex flex-wrap items-end gap-3">
         <div className="flex rounded-lg border border-mist-200 bg-white p-0.5 shadow-xs" role="group" aria-label="Période">

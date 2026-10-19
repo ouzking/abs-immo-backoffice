@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build",
-    "types:sync": "node scripts/sync-backend-types.ts"
+    "types:sync": "node scripts/sync-backend-types.ts",
+    "demo:photos": "node scripts/seed-demo-photos.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

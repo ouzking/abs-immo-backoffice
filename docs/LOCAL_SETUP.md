@@ -51,8 +51,15 @@ Le port **5174** est imposé (`strictPort`) : c'est l'URL de redirection Auth d�
 `abs-immo-backend/supabase/config.toml` (`/reset-password` pour les liens de réinitialisation et d'invitation).
 Les e-mails envoyés en local (invitation, réinitialisation) arrivent dans Mailpit : http://127.0.0.1:54624.
 
-Les photos des biens du seed n'ont pas de fichier réel dans Storage : la fiche affiche « Fichier indisponible ».
-Envoyez de vraies photos depuis l'écran du bien pour les voir.
+Les photos des biens du seed n'ont pas de fichier réel dans Storage. Pour les remplacer par de vraies photos
+(pile **locale** uniquement ; le script refuse toute autre URL) :
+
+```bash
+npm run demo:photos                                   # dossier par défaut : OneDriveImagesimmobilier
+npm run demo:photos -- "C:cheminersmesphotos"     # autre dossier (mêmes noms de fichiers)
+```
+
+À relancer après chaque `npm run db:reset` du backend.
 
 ## 4. Vérifications
 

@@ -68,6 +68,7 @@
   --animate-fade-up: fade-up 0.35s var(--ease-out-soft) both;
   --animate-slide-in-right: slide-in-right 0.3s var(--ease-out-soft) both;
   --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-ken-burns: ken-burns 9s ease-out both;
 
   @keyframes fade-in {
     from {
@@ -93,6 +94,14 @@
     }
     to {
       transform: none;
+    }
+  }
+  @keyframes ken-burns {
+    from {
+      transform: scale(1.02);
+    }
+    to {
+      transform: scale(1.1);
     }
   }
   @keyframes shimmer {
