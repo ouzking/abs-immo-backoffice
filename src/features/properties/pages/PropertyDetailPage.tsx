@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { ExternalLink, Eye, Pencil, Star } from 'lucide-react'
+import { Badge } from '@/components/ui/Badge'
 import { ButtonLink } from '@/components/ui/Button'
 import { Card, CardBody, CardHeader, DetailList } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -18,6 +19,7 @@ import { PhotoManager } from '../components/PhotoManager'
 import { CommercialBadge, PublicationBadge } from '../components/PropertyBits'
 import { WorkflowPanel } from '../components/WorkflowPanel'
 import { propertyKeys } from '../hooks'
+import { translationStatus } from '../translation'
 
 export function PropertyDetailPage() {
   const { id = '' } = useParams()
@@ -44,6 +46,7 @@ export function PropertyDetailPage() {
     (can('properties.update_all') || (can('properties.update_own') && p.agent_id === access.user_id)) &&
     (p.publication_status !== 'archived' || can('properties.publish'))
   const unit = labelOf(SURFACE_UNITS, p.surface_unit)
+  const tr = translationStatus(p)
 
   return (
     <>
@@ -60,6 +63,7 @@ export function PropertyDetailPage() {
             <span className="font-mono text-sm text-mist-600">{p.reference}</span>
             <PublicationBadge status={p.publication_status} />
             <CommercialBadge status={p.commercial_status} />
+            <Badge tone={tr.tone}>EN : {tr.label.toLowerCase()}</Badge>
           </>
         }
         actions={
@@ -106,6 +110,23 @@ export function PropertyDetailPage() {
                   { label: 'Statut juridique', value: p.legal_status ? labelOf(LEGAL_STATUSES, p.legal_status) : '—' },
                   { label: 'Description courte', value: p.short_description || <em className="text-mist-400">Non renseignée</em>, full: true },
                   { label: 'Description', value: p.description ? <p className="whitespace-pre-line">{p.description}</p> : <em className="text-mist-400">Non renseignée</em>, full: true },
+                ]}
+              />
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader
+              title="Version anglaise"
+              description="Affichée sur le site anglais (/en). Champ vide : le français est affiché avec « not translated yet »."
+              actions={<Badge tone={tr.tone}>{tr.label}</Badge>}
+            />
+            <CardBody>
+              <DetailList
+                items={[
+                  { label: 'Title', value: p.title_en ?? <em className="text-mist-400">Non traduit</em>, full: true },
+                  { label: 'Short description', value: p.short_description_en ?? <em className="text-mist-400">Non traduite</em>, full: true },
+                  { label: 'Description', value: p.description_en ? <p className="whitespace-pre-line" lang="en">{p.description_en}</p> : <em className="text-mist-400">Non traduite</em>, full: true },
                 ]}
               />
             </CardBody>

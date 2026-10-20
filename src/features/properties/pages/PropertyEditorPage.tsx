@@ -40,6 +40,7 @@ import {
   updateProperty,
   type PropertyDetail,
 } from '../api'
+import { EnglishSection } from '../components/EnglishSection'
 import { AmenitiesPicker, CharCount, FeaturesEditor, FormSection, LocalityPicker } from '../components/FormParts'
 import { PhotoManager } from '../components/PhotoManager'
 import { PublicationBadge } from '../components/PropertyBits'
@@ -61,6 +62,7 @@ const SECTIONS = [
   { id: 'equipements', title: 'Équipements', fields: [] },
   { id: 'photos', title: 'Photographies', fields: [] },
   { id: 'seo', title: 'Référencement SEO', fields: ['seo_title', 'seo_description', 'slug'] },
+  { id: 'anglais', title: 'Version anglaise', fields: ['title_en', 'short_description_en', 'description_en', 'seo_title_en', 'seo_description_en'] },
   { id: 'publication', title: 'Publication', fields: ['commercial_status'] },
 ] as const
 
@@ -540,7 +542,10 @@ function PropertyForm({ property, amenities, features }: { property?: PropertyDe
           </FormSection>
 
           {/* 11 */}
-          <FormSection id="publication" index={11} title="Publication" hasError={sectionHasError(errors, SECTIONS[10].fields)}>
+          <EnglishSection register={register} control={control} errors={errors} hasError={sectionHasError(errors, SECTIONS[10].fields)} />
+
+          {/* 12 */}
+          <FormSection id="publication" index={12} title="Publication" hasError={sectionHasError(errors, SECTIONS[11].fields)}>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Statut de publication" hint="Les changements de publication se font avec les boutons ci-dessous ou depuis la fiche du bien.">
                 <div className="flex h-10 items-center">

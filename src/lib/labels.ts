@@ -64,7 +64,7 @@ export const PUBLICATION_STATUSES: Record<PublicationStatus, EnumMeta> = {
 
 export const COMMERCIAL_STATUSES: Record<CommercialStatus, EnumMeta> = {
   available: { label: 'Disponible', tone: 'success' },
-  reserved: { label: 'Réservé', tone: 'warning' },
+  reserved: { label: 'Sous option', tone: 'warning' },
   sold: { label: 'Vendu', tone: 'danger' },
   rented: { label: 'Loué', tone: 'danger' },
 }

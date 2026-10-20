@@ -152,7 +152,7 @@ export function DashboardPage() {
                 loading={loading}
                 label="Biens disponibles"
                 value={formatNumber(s?.properties.available)}
-                hint={s && `${formatNumber(s.properties.reserved)} réservés`}
+                hint={s && `${formatNumber(s.properties.reserved)} sous option`}
                 icon={<CheckCircle2 className="h-4 w-4" />}
                 tone="navy"
               />

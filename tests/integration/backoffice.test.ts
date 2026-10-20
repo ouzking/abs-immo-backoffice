@@ -160,6 +160,14 @@ describe.skipIf(!isLocal)('Back-office × Supabase local', () => {
     expect(published.published_at).not.toBeNull()
   })
 
+  it('version anglaise : saisie au back-office, exposée au site public (contrat 1.1.0)', async () => {
+    await as('agent1')
+    await updateProperty(propertyId, { title_en: 'Bright apartment for rent', short_description_en: 'Bright apartment close to all amenities.' })
+    await signOut()
+    const { data } = await getSupabase().from('public_properties').select('title_en,has_english').eq('id', propertyId).single()
+    expect(data).toEqual({ title_en: 'Bright apartment for rent', has_english: true })
+  })
+
   it('la dernière photo d’une annonce publiée est protégée', async () => {
     await as('agent1')
     const { data } = await getSupabase().from('property_media').select('id,storage_path').eq('property_id', propertyId)

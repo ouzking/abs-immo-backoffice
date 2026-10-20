@@ -237,6 +237,9 @@ export function PhotoManager({
           <UploadCloud className="h-8 w-8 text-navy-500" aria-hidden />
           <p className="mt-2 text-sm font-semibold text-ink">Glissez vos photos ici</p>
           <p className="mt-0.5 text-xs text-mist-500">JPEG, PNG, WebP ou AVIF · 10 Mo maximum par photo · envoi multiple possible</p>
+          <p className="mt-2 max-w-lg text-xs leading-relaxed text-mist-600">
+            Pour un rendu haut de gamme sur le site : <strong>format paysage</strong>, <strong>1600 px de large minimum</strong>, photos nettes et lumineuses, uniquement du bien lui-même. La première photo est la couverture.
+          </p>
           <Button variant="secondary" size="sm" className="mt-4" icon={<ImagePlus className="h-4 w-4" />} onClick={() => inputRef.current?.click()}>
             Choisir des photos
           </Button>
@@ -421,7 +424,10 @@ function SortablePhoto({
             maxLength={250}
             placeholder="Description (accessibilité, SEO)"
             aria-label={`Description de la photo ${index + 1}`}
-            className="h-8 w-full rounded-md border border-mist-200 px-2 text-xs focus:border-navy-500 focus:ring-2 focus:ring-navy-100 focus:outline-none"
+            className={cn(
+              'h-8 w-full rounded-md border px-2 text-xs focus:border-navy-500 focus:ring-2 focus:ring-navy-100 focus:outline-none',
+              alt.trim() ? 'border-mist-200' : 'border-warning-600/50 bg-warning-50/40',
+            )}
           />
         ) : (
           media.alt_text && <p className="truncate text-xs text-mist-600">{media.alt_text}</p>
@@ -430,6 +436,12 @@ function SortablePhoto({
           {media.width && media.height ? `${media.width} × ${media.height} px · ` : ''}
           {formatBytes(media.size_bytes)}
         </p>
+        {qualityWarning(media) && (
+          <p className="flex items-start gap-1 text-[11px] leading-snug text-warning-700">
+            <AlertCircle className="mt-px h-3 w-3 shrink-0" aria-hidden />
+            {qualityWarning(media)}
+          </p>
+        )}
         {canEdit && (
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon-sm" disabled={index === 0 || busy} onClick={() => onMove(-1)} aria-label="Avancer la photo">
@@ -465,4 +477,12 @@ function SortablePhoto({
       </div>
     </li>
   )
+}
+
+/** Conseils de qualité du site public : paysage, 1600 px de large minimum (non bloquant). */
+function qualityWarning(media: Pick<PropertyMedia, 'width' | 'height'>): string | null {
+  if (!media.width || !media.height) return null
+  if (media.height > media.width) return 'Format portrait : préférez une photo en paysage.'
+  if (media.width < 1600) return `Résolution faible (${media.width} px) : 1600 px de large recommandés.`
+  return null
 }

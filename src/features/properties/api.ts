@@ -39,7 +39,7 @@ export interface PropertyFilters {
 
 const LIST_COLUMNS =
   'id,reference,slug,title,property_type,transaction_type,price_amount,price_on_request,rent_period,currency_code,' +
-  'publication_status,commercial_status,is_featured,created_at,updated_at,agent_id,surface_area,surface_unit,bedrooms,' +
+  'publication_status,commercial_status,is_featured,created_at,updated_at,agent_id,surface_area,surface_unit,bedrooms,title_en,' +
   'agent:agents!properties_agent_id_fkey(display_name),' +
   'city:localities!properties_city_id_fkey(name),' +
   'neighborhood:localities!properties_neighborhood_id_fkey(name),' +
@@ -65,6 +65,7 @@ export interface PropertyListRow {
   surface_area: number | null
   surface_unit: Property['surface_unit']
   bedrooms: number | null
+  title_en: string | null
   agent: { display_name: string } | null
   city: { name: string } | null
   neighborhood: { name: string } | null
@@ -158,7 +159,7 @@ export async function listPropertyAmenityCodes(propertyId: string): Promise<stri
 // Écriture
 // =============================================================================
 
-/** Colonnes modifiables via l'API (GRANT UPDATE de la migration 0400). */
+/** Colonnes modifiables via l'API (GRANT UPDATE des migrations 0400 et 20261020000100). */
 export const UPDATABLE_PROPERTY_COLUMNS = [
   'title', 'slug', 'short_description', 'description', 'property_type', 'transaction_type',
   'price_amount', 'currency_code', 'price_on_request', 'price_negotiable', 'rent_period', 'deposit_amount',
@@ -166,6 +167,8 @@ export const UPDATABLE_PROPERTY_COLUMNS = [
   'floor', 'total_floors', 'parking_spaces', 'year_built', 'is_furnished', 'legal_status', 'locality_id',
   'location_label', 'address_line', 'latitude', 'longitude', 'address_visibility', 'commercial_status',
   'publication_status', 'is_featured', 'featured_rank', 'agent_id', 'seo_title', 'seo_description', 'internal_notes',
+  // Contrat 1.1.0 : version anglaise
+  'title_en', 'short_description_en', 'description_en', 'seo_title_en', 'seo_description_en',
 ] as const satisfies ReadonlyArray<keyof PropertyUpdate>
 
 /** Ne conserve que les colonnes autorisées (une colonne non accordée ferait échouer toute la requête). */
@@ -397,4 +400,18 @@ export async function documentDownloadUrl(path: string, filename: string): Promi
   const { data, error } = await getSupabase().storage.from(STORAGE_BUCKETS.propertyDocuments).createSignedUrl(path, 60, { download: filename })
   if (error || !data) throw new AppError('forbidden', 'Téléchargement impossible : document inaccessible.')
   return data.signedUrl
+}
+
+/** Nombre maximal d'annonces « à la une » affichées sur l'accueil du site public. */
+export const HOMEPAGE_FEATURED_LIMIT = 6
+
+/** Annonces publiées actuellement mises en avant (périmètre RLS de l'utilisateur). */
+export async function countFeaturedPublished(): Promise<number> {
+  const result = await getSupabase()
+    .from('properties')
+    .select('id', { count: 'exact', head: true })
+    .eq('is_featured', true)
+    .eq('publication_status', 'published')
+  unwrap(result)
+  return result.count ?? 0
 }

@@ -6,9 +6,13 @@ import { ButtonLink } from '@/components/ui/Button'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { Callout, ErrorState } from '@/components/ui/States'
 import { LoadingBlock } from '@/components/ui/Spinner'
-import { useAmenities, useLocalityTree, usePropertyTypeLabels } from '@/features/reference/hooks'
+import { useAmenities, useLocalityTree, usePropertyTypes } from '@/features/reference/hooks'
 import { formatNumber, formatPrice } from '@/lib/format'
-import { SURFACE_UNITS, TRANSACTION_TYPES, labelOf } from '@/lib/labels'
+import { COMMERCIAL_STATUSES, SURFACE_UNITS, TRANSACTION_TYPES, labelOf, toneOf } from '@/lib/labels'
+import type { CommercialStatus } from '@/types'
+import { Badge } from '@/components/ui/Badge'
+
+const COMMERCIAL_EN: Record<CommercialStatus, string> = { available: 'Available', reserved: 'Under offer', sold: 'Sold', rented: 'Rented' }
 import { getProperty, listPropertyAmenityCodes, listPropertyFeatures, listPropertyMedia } from '../api'
 import { CommercialBadge, PublicationBadge } from '../components/PropertyBits'
 import { propertyKeys, useSignedImageUrls } from '../hooks'
@@ -24,10 +28,12 @@ export function PropertyPreviewPage() {
   const features = useQuery({ queryKey: propertyKeys.features(id), queryFn: () => listPropertyFeatures(id) })
   const amenityCodes = useQuery({ queryKey: propertyKeys.amenities(id), queryFn: () => listPropertyAmenityCodes(id) })
   const amenities = useAmenities()
-  const typeLabels = usePropertyTypeLabels()
+  const types = usePropertyTypes()
   const { tree } = useLocalityTree()
   const signed = useSignedImageUrls((media.data ?? []).map((m) => m.storage_path))
   const [index, setIndex] = useState(0)
+  // Aperçu de la version française ou anglaise (contrat 1.1.0), avec le même repli que le site.
+  const [lang, setLang] = useState<'fr' | 'en'>('fr')
 
   const photos = useMemo(() => {
     const list = [...(media.data ?? [])]
@@ -41,7 +47,13 @@ export function PropertyPreviewPage() {
   const current = photos[index]
   const currentUrl = current ? signed.data?.get(current.storage_path) : null
   const place = tree ? tree.chain(p.locality_id).map((l) => l.name).reverse().slice(0, 2).join(', ') : ''
-  const amenityMap = new Map((amenities.data ?? []).map((a) => [a.code, a.label]))
+  const en = lang === 'en'
+  const amenityMap = new Map((amenities.data ?? []).map((a) => [a.code, (en && a.label_en) || a.label]))
+  const type = types.data?.find((t) => t.code === p.property_type)
+  const typeLabel = (en && type?.label_en) || type?.label || p.property_type
+  const pick = (fr: string | null, english: string | null) => (en ? (english ?? fr) : fr)
+  const missing = (english: string | null, fr: string | null) => en && !english && !!fr
+  const notTranslated = <span className="ml-2 rounded bg-warning-50 px-1.5 py-0.5 align-middle font-sans text-[11px] font-semibold text-warning-700">not translated yet</span>
   const unit = labelOf(SURFACE_UNITS, p.surface_unit)
 
   return (
@@ -50,7 +62,24 @@ export function PropertyPreviewPage() {
         breadcrumbs={[{ label: 'Biens', to: '/biens' }, { label: p.reference, to: `/biens/${p.id}` }, { label: 'Aperçu' }]}
         title="Aperçu de l’annonce"
         meta={<PublicationBadge status={p.publication_status} />}
-        actions={<ButtonLink to={`/biens/${p.id}`}>Retour à la fiche</ButtonLink>}
+        actions={
+          <>
+            <div className="flex rounded-lg border border-mist-200 bg-white p-0.5 shadow-xs" role="group" aria-label="Langue de l’aperçu">
+              {(['fr', 'en'] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setLang(l)}
+                  aria-pressed={lang === l}
+                  className={`rounded-md px-3 py-1.5 text-sm font-semibold ${lang === l ? 'bg-navy-700 text-white' : 'text-mist-600 hover:bg-mist-100'}`}
+                >
+                  {l === 'fr' ? 'Français' : 'English'}
+                </button>
+              ))}
+            </div>
+            <ButtonLink to={`/biens/${p.id}`}>Retour à la fiche</ButtonLink>
+          </>
+        }
       />
       {p.publication_status !== 'published' && (
         <Callout tone="info" icon={<Eye className="h-4 w-4" />} className="mb-6">
@@ -89,15 +118,22 @@ export function PropertyPreviewPage() {
             </>
           )}
           <div className="absolute top-3 left-3 flex gap-2">
-            <span className="rounded-md bg-navy-800 px-2.5 py-1 text-xs font-bold text-white">{labelOf(TRANSACTION_TYPES, p.transaction_type)}</span>
-            <CommercialBadge status={p.commercial_status} />
+            <span className="rounded-md bg-navy-800 px-2.5 py-1 text-xs font-bold text-white">{en ? (p.transaction_type === 'rent' ? 'For rent' : 'For sale') : labelOf(TRANSACTION_TYPES, p.transaction_type)}</span>
+            {en ? (
+              <Badge tone={toneOf(COMMERCIAL_STATUSES, p.commercial_status)}>{COMMERCIAL_EN[p.commercial_status]}</Badge>
+            ) : (
+              <CommercialBadge status={p.commercial_status} />
+            )}
           </div>
         </div>
 
         <div className="grid gap-8 p-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:p-8">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-brand-red-600">{typeLabels[p.property_type] ?? p.property_type}</p>
-            <h2 className="mt-1 font-display text-3xl font-semibold text-ink">{p.title}</h2>
+            <p className="text-sm font-semibold text-brand-red-600">{typeLabel}</p>
+            <h2 lang={en && p.title_en ? 'en' : 'fr'} className="mt-1 font-display text-3xl font-semibold text-ink">
+              {pick(p.title, p.title_en)}
+              {missing(p.title_en, p.title) && notTranslated}
+            </h2>
             <p className="mt-2 flex items-center gap-1.5 text-sm text-mist-600">
               <MapPin className="h-4 w-4" aria-hidden />
               {[p.location_label, place].filter(Boolean).join(' · ')}
@@ -120,8 +156,18 @@ export function PropertyPreviewPage() {
                 </li>
               )}
             </ul>
-            {p.short_description && <p className="mt-6 text-lg leading-relaxed text-mist-700">{p.short_description}</p>}
-            {p.description && <p className="mt-4 leading-relaxed whitespace-pre-line text-mist-700">{p.description}</p>}
+            {p.short_description && (
+              <p className="mt-6 text-lg leading-relaxed text-mist-700">
+                {pick(p.short_description, p.short_description_en)}
+                {missing(p.short_description_en, p.short_description) && notTranslated}
+              </p>
+            )}
+            {p.description && (
+              <p className="mt-4 leading-relaxed whitespace-pre-line text-mist-700">
+                {pick(p.description, p.description_en)}
+                {missing(p.description_en, p.description) && notTranslated}
+              </p>
+            )}
             {(amenityCodes.data ?? []).length > 0 && (
               <>
                 <h3 className="mt-8 font-bold">Équipements</h3>
@@ -151,11 +197,11 @@ export function PropertyPreviewPage() {
           </div>
           <aside>
             <div className="rounded-xl border border-mist-200 bg-mist-50 p-5">
-              <p className="text-xs font-semibold text-mist-500 uppercase">{p.transaction_type === 'rent' ? 'Loyer' : 'Prix'}</p>
+              <p className="text-xs font-semibold text-mist-500 uppercase">{p.transaction_type === 'rent' ? (en ? 'Rent' : 'Loyer') : en ? 'Price' : 'Prix'}</p>
               <p className="tabular mt-1 text-2xl font-extrabold text-navy-800">
                 {formatPrice(p.price_amount, { rentPeriod: p.rent_period, onRequest: p.price_on_request })}
               </p>
-              {p.price_negotiable && <p className="mt-1 text-xs text-mist-500">Prix négociable</p>}
+              {p.price_negotiable && <p className="mt-1 text-xs text-mist-500">{en ? 'Negotiable' : 'Prix négociable'}</p>}
               <p className="mt-4 font-mono text-xs text-mist-500">Réf. {p.reference}</p>
             </div>
           </aside>

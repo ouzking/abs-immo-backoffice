@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Archive, ArchiveRestore, Check, CircleAlert, EyeOff, Globe2, Send, Star, Trash2, Undo2 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
@@ -13,7 +13,15 @@ import { cn } from '@/lib/cn'
 import { toAppError } from '@/lib/errors'
 import { COMMERCIAL_STATUSES, labelOf, optionsOf } from '@/lib/labels'
 import { BUSINESS_RULE_HINTS, type CommercialStatus, type PropertyMedia, type PublicationStatus } from '@/types'
-import { deleteProperty, setCommercialStatus, setFeatured, setPublicationStatus, type PropertyDetail } from '../api'
+import {
+  HOMEPAGE_FEATURED_LIMIT,
+  countFeaturedPublished,
+  deleteProperty,
+  setCommercialStatus,
+  setFeatured,
+  setPublicationStatus,
+  type PropertyDetail,
+} from '../api'
 import { useInvalidateProperty } from '../hooks'
 import { PublicationBadge } from './PropertyBits'
 
@@ -38,6 +46,7 @@ export function WorkflowPanel({ property, media }: { property: PropertyDetail; m
     (can('properties.update_all') || (can('properties.update_own') && property.agent_id === access.user_id)) &&
     (property.publication_status !== 'archived' || canPublish)
   const status = property.publication_status
+  const featuredCount = useQuery({ queryKey: ['properties', 'featured-count'], queryFn: countFeaturedPublished, enabled: canPublish })
 
   const hasCover = !!media?.some((m) => m.is_cover)
   const shortOk = (property.short_description?.trim().length ?? 0) >= 20
@@ -135,6 +144,19 @@ export function WorkflowPanel({ property, media }: { property: PropertyDetail; m
       tone: closing ? 'danger' : 'primary',
     })
     if (ok) changeCommercial.mutate(next)
+  }
+
+  const toggleFeatured = async (next: boolean) => {
+    const count = featuredCount.data ?? 0
+    if (next && status === 'published' && count >= HOMEPAGE_FEATURED_LIMIT) {
+      const ok = await confirm({
+        title: 'Sélection « À la une » complète',
+        description: `${count} annonces sont déjà mises en avant ; l’accueil du site n’en affiche que ${HOMEPAGE_FEATURED_LIMIT}. Retirez-en une pour garantir l’affichage de celle-ci, ou confirmez quand même.`,
+        confirmLabel: 'Mettre en avant quand même',
+      })
+      if (!ok) return
+    }
+    changeFeatured.mutate(next)
   }
 
   const askDelete = async () => {
@@ -242,13 +264,22 @@ export function WorkflowPanel({ property, media }: { property: PropertyDetail; m
             <Switch
               checked={property.is_featured}
               disabled={busy}
-              onChange={(v) => changeFeatured.mutate(v)}
+              onChange={(v) => void toggleFeatured(v)}
               label={
                 <span className="flex items-center gap-1.5">
                   <Star className="h-4 w-4 text-brand-red-600" aria-hidden /> Mise en avant
                 </span>
               }
-              description="Affichée dans la sélection « À la une » du site lorsqu’elle est publiée."
+              description={
+                <>
+                  Affichée dans la sélection « À la une » de l’accueil lorsqu’elle est publiée.{' '}
+                  {featuredCount.data !== undefined && (
+                    <span className={featuredCount.data >= HOMEPAGE_FEATURED_LIMIT ? 'font-semibold text-warning-700' : ''}>
+                      {featuredCount.data} / {HOMEPAGE_FEATURED_LIMIT} actuellement à la une.
+                    </span>
+                  )}
+                </>
+              }
             />
           </div>
         )}

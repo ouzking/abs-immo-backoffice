@@ -13,7 +13,7 @@ Dépôts liés : [`abs-immo-backend`](https://github.com/ouzking/abs-immo-backen
 source du schéma**) et `abs-immo-frontend` (site public).
 
 > Le back-office ne crée ni table, ni vue, ni politique, ni bucket. Il consomme le
-> [contrat d'intégration](../abs_immo_backend/docs/INTEGRATION_CONTRACT.md) **v1.0.0** du backend.
+> [contrat d'intégration](../abs_immo_backend/docs/INTEGRATION_CONTRACT.md) **v1.1.0** du backend.
 
 ## Démarrage rapide
 
@@ -45,7 +45,7 @@ Développement complet avec la base locale et les comptes de démonstration : [d
 | Espace | Contenu | Permissions (vérifiées par la base) |
 |---|---|---|
 | Tableau de bord | Indicateurs réels (`get_dashboard_stats`), évolution des demandes, catégories, vente/location, statuts commerciaux, pipeline, dernières annonces et demandes, performance par agent ; filtres période et agent | `stats.read_own` (périmètre personnel) / `stats.read_all` |
-| Biens | Liste filtrable/triée/paginée (titre, référence, type, transaction, ville, publication, statut commercial, agent) ; formulaire en 11 sections avec brouillon ; fiche ; aperçu public | `properties.*` |
+| Biens | Liste filtrable/triée/paginée (titre, référence, type, transaction, ville, publication, statut commercial, agent) ; formulaire en 12 sections avec brouillon, dont la **version anglaise** ; fiche ; aperçu public FR / EN | `properties.*` |
 | Photos | Envoi multiple avec progression, aperçu, photo principale, réordonnancement (glisser-déposer + clavier), description, suppression ; bucket **privé** + URL signées | modification du bien |
 | Workflow | Brouillon → validation → publication → retrait / archive ; statut commercial séparé ; mise en avant ; suppression définitive | `properties.publish`, `properties.delete` |
 | Documents internes | Titres, mandats, contrats (bucket privé), téléchargement par lien signé de 60 s | modification du bien |
@@ -99,9 +99,9 @@ Les composants n'appellent jamais Supabase directement : chaque domaine expose s
 
 ## Tests
 
-* `npm test` : 57 tests unitaires et de composants (erreurs, permissions, conversion formulaire → colonnes autorisées,
+* `npm test` : 59 tests unitaires et de composants (erreurs, permissions, conversion formulaire → colonnes autorisées,
   règles de prix/loyer/statut, formats, gardes de routes, navigation selon le rôle, connexion, confirmation de visite).
-* `npm run test:integration` : 16 parcours exécutés avec la couche de services réelle contre la pile Supabase locale
+* `npm run test:integration` : 17 parcours exécutés avec la couche de services réelle contre la pile Supabase locale
   (création par un agent, refus de publication, envoi de photo dans le bucket privé, conditions de publication,
   protection de la dernière photo, cloisonnement des prospects, notes internes, confirmation de visite, périmètre des
   statistiques, audit, paramètres, règle de rang des comptes). Refusent de s'exécuter sur une URL non locale.
@@ -118,3 +118,4 @@ Les composants n'appellent jamais Supabase directement : chaque domaine expose s
 | Version | Date | Changements |
 |---|---|---|
 | 1.0.0 | 2026-10-17 | Version initiale, contrat backend 1.0.0 |
+| 1.1.0 | 2026-10-20 | Contrat backend 1.1.0 : saisie de la version anglaise des annonces, aperçu FR / EN ; consignes photo, limite « à la une », libellé « Sous option » ; visuels photographiques |

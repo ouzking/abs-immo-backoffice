@@ -78,6 +78,11 @@ export function PropertiesListPage() {
               <span className="flex items-center gap-1.5">
                 <span className="line-clamp-1 font-semibold text-ink group-hover:text-navy-700 group-hover:underline">{p.title}</span>
                 {p.is_featured && <Star className="h-3.5 w-3.5 shrink-0 fill-brand-red-600 text-brand-red-600" aria-label="Mis en avant" />}
+                {p.title_en && (
+                  <span className="shrink-0 rounded bg-navy-50 px-1 text-[10px] font-bold text-navy-700" title="Version anglaise renseignée">
+                    EN
+                  </span>
+                )}
               </span>
               <span className="block text-xs text-mist-500">
                 <span className="font-mono">{p.reference}</span> · {typeLabel[p.property_type] ?? p.property_type} ·{' '}

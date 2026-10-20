@@ -107,3 +107,22 @@ describe('sanitizeSearch / validateImageFile', () => {
     expect(validateImageFile(big)).toMatch(/10 Mo/)
   })
 })
+
+describe('version anglaise (contrat 1.1.0)', () => {
+  it('est facultative mais un titre anglais fait 5 à 160 caractères', () => {
+    expect(errorsOf(valid({ title_en: '' }))).toEqual([])
+    expect(errorsOf(valid({ title_en: 'Abc' }))).toContain('title_en')
+    expect(errorsOf(valid({ title_en: 'Villa with pool in Almadies' }))).toEqual([])
+  })
+  it('envoie null pour un champ vide (le site affiche alors le français)', () => {
+    const p = toPropertyPayload(valid({ title_en: 'Villa with pool', short_description_en: '  ' }), {
+      isLand: false,
+      canAssignAgent: false,
+      canPublish: false,
+      isCreate: false,
+    })
+    expect(p.title_en).toBe('Villa with pool')
+    expect(p.short_description_en).toBeNull()
+    expect(pickUpdatable(p)).toHaveProperty('title_en', 'Villa with pool')
+  })
+})

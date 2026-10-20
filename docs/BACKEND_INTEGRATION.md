@@ -1,7 +1,7 @@
 # Intégration avec le backend
 
 Public visé : développeurs du back-office et de `abs-immo-backend`.
-Contrat consommé : **1.0.0** (`src/types/backend`, copie non modifiée de `abs-immo-backend/src/types`).
+Contrat consommé : **1.1.0** (`src/types/backend`, copie non modifiée de `abs-immo-backend/src/types`).
 
 ## 1. Principes
 
@@ -39,6 +39,15 @@ Envois avec progression : `XMLHttpRequest` sur `POST /storage/v1/object/<bucket>
 base après l'envoi, le fichier est supprimé (pas d'orphelin).
 
 ## 3. Choix d'interface liés au modèle
+
+**Version anglaise (1.1.0).** Section « Version anglaise » du formulaire : `title_en` (5–160 caractères si renseigné),
+`short_description_en`, `description_en`, `seo_title_en`, `seo_description_en`. Champ vide envoyé comme `null` : le site
+anglais (/en) affiche alors le français avec « not translated yet ». État de traduction affiché dans la fiche (badge),
+marqueur « EN » dans la liste, aperçu bascule Français / English avec le même repli que le site.
+
+**Consignes d'affichage du site public.** Rappelées dans l'interface sans être bloquantes : photos en paysage d'au moins
+1600 px (avertissement par photo), texte alternatif (champ signalé s'il est vide), 6 annonces « à la une » au maximum
+sur l'accueil (compteur et confirmation au-delà). Statut `reserved` libellé « Sous option », comme sur le site.
 
 **Statuts des prospects.** Le cahier des charges cite « Nouveau, À contacter, En cours, Visite programmée, Converti,
 Non abouti ». Le backend (source d'autorité) définit `new, contacted, qualified, visit_scheduled, negotiation, won, lost`.

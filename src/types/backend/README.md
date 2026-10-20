@@ -1,7 +1,7 @@
 # Types partagés du backend
 
-Copie **non modifiée** de `abs-immo-backend/src/types/` (contrat d'intégration **1.0.0**,
-commit `8326f29`).
+Copie **non modifiée** de `abs-immo-backend/src/types/` (contrat d'intégration **1.1.0**,
+commit `554f340`, migration `20261020000100_bilingual_listings`).
 
 - `database.types.ts` : généré depuis le schéma (`npm run types:gen` côté backend).
 - `contracts.ts` : alias métier, formes JSON des RPC, corps des Edge Functions, codes d'erreur.

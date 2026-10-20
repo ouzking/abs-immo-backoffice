@@ -49,4 +49,4 @@ export const env = {
 } as const
 
 /** Version du contrat backend avec laquelle ce back-office a été écrit et testé. */
-export const CONTRACT_VERSION_EXPECTED = '1.0.0'
+export const CONTRACT_VERSION_EXPECTED = '1.1.0'
